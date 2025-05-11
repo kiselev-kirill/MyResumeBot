@@ -1,0 +1,21 @@
+# env file
+.env
+
+/data
+
+
+
+# Python
+*/__init__.py
+__init__.py
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+requirements.txt
+
+# IDE
+.idea/
+
+# Git
+/.git
