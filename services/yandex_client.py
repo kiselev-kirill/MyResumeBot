@@ -1,10 +1,10 @@
 from yandex_cloud_ml_sdk import YCloudML
 
-from config import YANDEX_GPT_API_KEY
+from config import YANDEX_GPT_API_KEY, YANDEX_FOLDER_ID
 from services.load_resume import load_resume
 
 sdk = YCloudML(
-    folder_id="b1ghef38aj5idrlqabh4", auth=YANDEX_GPT_API_KEY
+    folder_id=YANDEX_FOLDER_ID, auth=YANDEX_GPT_API_KEY
 )
 
 

@@ -11,6 +11,12 @@ def load_stack() -> str:
         return file.read()
 
 
+def load_about_me() -> str:
+    stack_file_path = Path(DATA_PATH / "about_me.md")
+    with open(stack_file_path, mode="r") as file:
+        return file.read()
+
+
 def load_resume() -> str:
     stack_file_path = Path(DATA_PATH / "cv.md")
     with open(stack_file_path, mode="r") as file:
