@@ -2,13 +2,16 @@ from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (Message, InlineKeyboardMarkup,
                            InlineKeyboardButton, CallbackQuery,
-                           ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove)
+                           ReplyKeyboardMarkup, KeyboardButton,
+                           ReplyKeyboardRemove)
+from aiogram.utils.formatting import as_marked_list
 from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup
 
 from services.load_resume import load_stack, load_about_me
 from services.yandex_client import ask_yandex_gpt
 from constants import COMMANDS_WITH_DESCRIPTION
+from bot_logging import bot_logger
 
 router = Router()
 
@@ -32,24 +35,30 @@ async def start_command(message: Message):
         " — я отвечу как кандидат\n\n"
         f"*Вот что я умею:*\n{COMMANDS_WITH_DESCRIPTION}",
         reply_markup=ai_button,
-        parse_mode="MarkdownV2"
+        
     )
 
 
 @router.message(Command("about_kirill"))
 async def start_command(message: Message):
-    await message.answer(load_about_me(), parse_mode="MarkdownV2")
+    await message.answer(load_about_me())
 
 
 @router.message(Command("short_stack"))
 async def short_stack_command(message: Message):
-    await message.answer(load_stack(), parse_mode="MarkdownV2")
+    stack = load_stack().split(sep="\n")
+
+    content = as_marked_list(
+        *stack,
+        marker="➡️ ",
+    )
+    await message.answer(**content.as_kwargs())
 
 
 @router.message(Command("help"))
 async def help_command(message: Message):
     user_message = f"Все команды:\n\n{COMMANDS_WITH_DESCRIPTION}"
-    await message.answer(user_message, parse_mode="MarkdownV2")
+    await message.answer(user_message)
 
 
 @router.callback_query(F.data == "talk_to_ai")
@@ -59,7 +68,9 @@ async def talk_to_ai_handler(callback: CallbackQuery, state: FSMContext):
         keyboard=[[stop_button]], resize_keyboard=True
     )
     await callback.message.answer(
-        "Напиши свой вопрос, и я постараюсь ответить как кандидат 👨‍💼\n",
+        "Напиши свой вопрос, и я постараюсь ответить как кандидат 👨‍💼\n "
+        "Если хотите связаться с Кириллом, то напишите ИИ, "
+        "что вы заинтересованы в нем😊",
         reply_markup=stop_keyboard
     )
     await state.set_state(ChatMode.talking_to_ai)
@@ -70,7 +81,7 @@ async def talk_to_ai_handler(callback: CallbackQuery, state: FSMContext):
 async def stop_ai_chat(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
-        "AI-режим отключён. Ты можешь снова начать, нажав кнопку на /start.",
+        "AI\-режим отключён\. Ты можешь снова начать, нажав кнопку на /start\.",
         reply_markup=ReplyKeyboardRemove(remove_keyboard=True)
     )
 
@@ -78,7 +89,7 @@ async def stop_ai_chat(message: Message, state: FSMContext):
 @router.message(ChatMode.talking_to_ai)
 async def handle_ai_question(message: Message):
     reply = await ask_yandex_gpt(message.text)
-    await message.answer(f"`{reply}`", parse_mode="MarkdownV2")
+    await message.reply(f"`{reply}`", )
 
 
 @router.message()
@@ -87,7 +98,7 @@ async def fallback_handler(message: Message, state: FSMContext):
     if current_state == ChatMode.talking_to_ai:
         return
 
-    await message.answer(
+    await message.reply(
         "🤖 Я не понял твоё сообщение."
-        " Чтобы начать разговор с ИИ, нажми на кнопку в /start."
+        " Чтобы начать разговор с ИИ, нажми на кнопку в /start. "
     )

@@ -19,3 +19,6 @@ requirements.txt
 
 # Git
 /.git
+
+# logs
+*.log

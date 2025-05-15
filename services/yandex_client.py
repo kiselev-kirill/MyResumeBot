@@ -1,6 +1,6 @@
 from yandex_cloud_ml_sdk import YCloudML
 
-from config import YANDEX_GPT_API_KEY, YANDEX_FOLDER_ID
+from config import YANDEX_GPT_API_KEY, YANDEX_FOLDER_ID, GPT_PROMPT
 from services.load_resume import load_resume
 
 sdk = YCloudML(
@@ -16,11 +16,12 @@ async def ask_yandex_gpt(question: str) -> str:
         [
             {
                 "role": "system",
-                "text": f"Ты — кандидат. Вот его резюме:\n{resume}"},
+                "text": f"Ты — кандидат. Вот его резюме:\n{resume}.{GPT_PROMPT}",
+            },
             {
                 "role": "user",
-                "text": f"{question}",
-            },
+                "text": f"{question}"
+            }
         ]
     )
 
