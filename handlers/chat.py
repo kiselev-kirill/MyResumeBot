@@ -1,3 +1,5 @@
+import warnings
+
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (Message, InlineKeyboardMarkup,
@@ -13,6 +15,9 @@ from services.yandex_client import ask_yandex_gpt
 from constants import COMMANDS_WITH_DESCRIPTION
 from bot_logging import bot_logger
 
+warnings.filterwarnings("ignore",
+                        category=SyntaxWarning,
+                        message="invalid escape sequence")
 router = Router()
 
 
@@ -25,7 +30,7 @@ async def start_command(message: Message):
     name = message.from_user.first_name
     ai_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
-            text="💬 Поговорить с ИИ о резюме",
+            text="💬 Поговорить с ИИ о резюмe",
             callback_data="talk_to_ai")]
     ])
     await message.answer(
@@ -33,7 +38,8 @@ async def start_command(message: Message):
         "Ты можешь задать мне любой вопрос по резюме нажав"
         " на 'Поговорить с ИИ о резюме'"
         " — я отвечу как кандидат\n\n"
-        f"*Вот что я умею:*\n{COMMANDS_WITH_DESCRIPTION}",
+        f"*Вот что я умею:*\n{COMMANDS_WITH_DESCRIPTION}\n"
+        f"❗Ваш диалог не будет сохранен❗",
         reply_markup=ai_button,
     )
 
@@ -70,7 +76,7 @@ async def talk_to_ai_handler(callback: CallbackQuery, state: FSMContext):
         input_field_placeholder="Введите свой вопрос..."
     )
     await callback.message.answer(
-        "Напиши свой вопрос, и я постараюсь ответить как кандидат 👨‍💼\n"
+        "Напиши свой вопрос, и я постараюсь ответить как кандидат 👨‍💼\n\n"
         "Если хотите связаться с Кириллом, то напишите ИИ, "
         "что вы заинтересованы в нем😊",
         reply_markup=stop_keyboard
@@ -83,16 +89,18 @@ async def talk_to_ai_handler(callback: CallbackQuery, state: FSMContext):
 async def stop_ai_chat(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
-        "ИИ режим отключён\n"
+        "ИИ\\-режим отключён\\!\n\n"
         "Ты можешь снова начать, нажав кнопку на /start",
         reply_markup=ReplyKeyboardRemove(remove_keyboard=True)
     )
 
 
-@router.message(ChatMode.talking_to_ai, flags={"chat_action": "typing"})
+@router.message(
+    ChatMode.talking_to_ai,
+    flags={"chat_action": "typing", "rate_limit": 5})
 async def handle_ai_question(message: Message):
     reply = await ask_yandex_gpt(message.text)
-    await message.reply(f"`{reply}`", )
+    await message.reply(f"`{reply}`")
 
 
 @router.message()
@@ -102,6 +110,6 @@ async def fallback_handler(message: Message, state: FSMContext):
         return
 
     await message.reply(
-        "🤖 Я не понял твоё сообщение."
+        "🤖 Я не понял твоё сообщение.\n\n"
         " Чтобы начать разговор с ИИ, нажми на кнопку в /start. "
     )

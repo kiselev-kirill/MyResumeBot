@@ -2,11 +2,13 @@ from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.flags import get_flag
+
 from aiogram.types import Message
 from aiogram.utils.chat_action import ChatActionSender
 
 
 class ChatActionMiddleware(BaseMiddleware):
+
     async def __call__(
             self,
             handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],

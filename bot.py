@@ -5,6 +5,7 @@ from config import TELEGRAM_BOT_TOKEN
 
 from handlers.chat import router as chat_router
 from middleware.action import ChatActionMiddleware
+from middleware.throttling import ThrottlingMiddleware
 
 
 async def main():
@@ -15,6 +16,7 @@ async def main():
     dp.include_router(chat_router)
     await bot.delete_webhook(drop_pending_updates=True)
     dp.message.middleware(ChatActionMiddleware())
+    dp.message.middleware(ThrottlingMiddleware())
     await dp.start_polling(bot)
 
 
