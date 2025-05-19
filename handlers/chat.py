@@ -28,6 +28,7 @@ class ChatMode(StatesGroup):
 @router.message(Command("start"))
 async def start_command(message: Message):
     name = message.from_user.first_name
+    bot_logger.info(f"User <{message.from_user.username}> used your /start")
     ai_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
             text="💬 Поговорить с ИИ о резюмe",
@@ -46,11 +47,13 @@ async def start_command(message: Message):
 
 @router.message(Command("about_kirill"))
 async def start_command(message: Message):
+    bot_logger.info(f"User <{message.from_user.username}> used your /about_kirill")
     await message.answer(load_about_me())
 
 
 @router.message(Command("short_stack"))
 async def short_stack_command(message: Message):
+    bot_logger.info(f"User <{message.from_user.username}> used your /short_stack")
     stack = load_stack().split(sep="\n")
 
     content = as_marked_list(
@@ -88,6 +91,7 @@ async def talk_to_ai_handler(callback: CallbackQuery, state: FSMContext):
 @router.message(F.text == "❌ Остановить разговор с ИИ")
 async def stop_ai_chat(message: Message, state: FSMContext):
     await state.clear()
+    bot_logger.info(f"User <{message.from_user.username}> used AI feature")
     await message.answer(
         "ИИ\\-режим отключён\\!\n\n"
         "Ты можешь снова начать, нажав кнопку на /start",
@@ -97,7 +101,7 @@ async def stop_ai_chat(message: Message, state: FSMContext):
 
 @router.message(
     ChatMode.talking_to_ai,
-    flags={"chat_action": "typing", "rate_limit": 5})
+    flags={"chat_action": "typing", "rate_limit": 7})
 async def handle_ai_question(message: Message):
     reply = await ask_yandex_gpt(message.text)
     await message.reply(f"`{reply}`")
@@ -105,11 +109,13 @@ async def handle_ai_question(message: Message):
 
 @router.message()
 async def fallback_handler(message: Message, state: FSMContext):
+    bot_logger.info(f"User <{message.from_user.username}> "
+                    f"wrote unreachable message: {message.text} ")
     current_state = await state.get_state()
     if current_state == ChatMode.talking_to_ai:
         return
 
     await message.reply(
-        "🤖 Я не понял твоё сообщение.\n\n"
-        " Чтобы начать разговор с ИИ, нажми на кнопку в /start. "
+        "🤖 Я не понял твоё сообщение\\.\n"
+        "Чтобы начать разговор с ИИ, нажми на кнопку в /start "
     )
