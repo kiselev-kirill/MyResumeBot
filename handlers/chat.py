@@ -1,5 +1,5 @@
 import warnings
-
+from datetime import datetime, UTC
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (Message, InlineKeyboardMarkup,
@@ -91,10 +91,9 @@ async def talk_to_ai_handler(callback: CallbackQuery, state: FSMContext):
 @router.message(F.text == "❌ Остановить разговор с ИИ")
 async def stop_ai_chat(message: Message, state: FSMContext):
     await state.clear()
-    bot_logger.info(f"User <{message.from_user.username}> used AI feature")
     await message.answer(
         "ИИ\\-режим отключён\\!\n\n"
-        "Ты можешь снова начать, нажав кнопку на /start",
+        "Ты можешь снова начать, нажав кнопку /start",
         reply_markup=ReplyKeyboardRemove(remove_keyboard=True)
     )
 
@@ -104,6 +103,7 @@ async def stop_ai_chat(message: Message, state: FSMContext):
     flags={"chat_action": "typing", "rate_limit": 7})
 async def handle_ai_question(message: Message):
     reply = await ask_yandex_gpt(message.text)
+    bot_logger.info(f"User <{message.from_user.username}> used AI feature")
     await message.reply(f"`{reply}`")
 
 
@@ -117,5 +117,5 @@ async def fallback_handler(message: Message, state: FSMContext):
 
     await message.reply(
         "🤖 Я не понял твоё сообщение\\.\n"
-        "Чтобы начать разговор с ИИ, нажми на кнопку в /start "
+        "Чтобы начать разговор с ИИ, нажми на кнопку /start "
     )
