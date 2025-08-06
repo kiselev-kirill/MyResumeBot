@@ -29,5 +29,4 @@ class ThrottlingMiddleware(BaseMiddleware):
         if now - last < rate_limit:
             await event.answer("Слишком быстро\n"
                                "Подождите немного\\.\\.\\.⏳")
-
             return

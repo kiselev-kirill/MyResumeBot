@@ -1,5 +1,4 @@
 import warnings
-from datetime import datetime, UTC
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (Message, InlineKeyboardMarkup,
