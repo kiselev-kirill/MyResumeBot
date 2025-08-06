@@ -27,6 +27,6 @@ class ThrottlingMiddleware(BaseMiddleware):
             user_last_time[user_id] = now
             return await handler(event, data)
         if now - last < rate_limit:
-            await event.answer("Слишком быстро\n"
+            await event.answer("Слишком быстро, тигр🐯\n"
                                "Подождите немного\\.\\.\\.⏳")
             return

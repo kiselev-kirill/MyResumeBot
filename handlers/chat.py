@@ -36,8 +36,7 @@ async def start_command(message: Message):
     await message.answer(
         f"*Привет, {name}👋*\nЯ бот Кирилла🤖\n"
         "Ты можешь задать мне любой вопрос по резюме нажав"
-        " на 'Поговорить с ИИ о резюме'"
-        " — я отвечу как кандидат\n\n"
+        " на *Поговорить с ИИ о резюме* ниже\n\n"
         f"*Вот что я умею:*\n{COMMANDS_WITH_DESCRIPTION}\n"
         f"❗Ваш диалог не будет сохранен❗",
         reply_markup=ai_button,
@@ -101,6 +100,7 @@ async def stop_ai_chat(message: Message, state: FSMContext):
     ChatMode.talking_to_ai,
     flags={"chat_action": "typing", "rate_limit": 7})
 async def handle_ai_question(message: Message):
+    await message.chat.do("typing")
     reply = await ask_yandex_gpt(message.text)
     bot_logger.info(f"User <{message.from_user.username}> used AI feature")
     await message.reply(f"`{reply}`")
