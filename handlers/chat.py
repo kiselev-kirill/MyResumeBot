@@ -8,6 +8,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.utils.formatting import as_marked_list
 from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup
+from yandex_cloud_ml_sdk.exceptions import AioRpcError
 
 from services.load_resume import load_stack, load_about_me
 from services.yandex_client import ask_yandex_gpt
@@ -101,7 +102,10 @@ async def stop_ai_chat(message: Message, state: FSMContext):
     flags={"chat_action": "typing", "rate_limit": 7})
 async def handle_ai_question(message: Message):
     await message.chat.do("typing")
-    reply = await ask_yandex_gpt(message.text)
+    try:
+        reply = await ask_yandex_gpt(message.text)
+    except AioRpcError:
+        await message.reply(f"На данный момент недоступна функция AI. Пожалуйста, вернитесь позже.")
     bot_logger.info(f"User <{message.from_user.username}> used AI feature")
     await message.reply(f"`{reply}`")
 
