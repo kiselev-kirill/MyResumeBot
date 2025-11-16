@@ -105,7 +105,7 @@ async def handle_ai_question(message: Message):
     try:
         reply = await ask_yandex_gpt(message.text)
     except AioRpcError:
-        await message.reply(f"На данный момент недоступна функция AI. Пожалуйста, вернитесь позже.")
+        await message.reply(f"На данный момент недоступна функция AI😞\nПожалуйста, вернитесь позже")
     bot_logger.info(f"User <{message.from_user.username}> used AI feature")
     await message.reply(f"`{reply}`")
 
